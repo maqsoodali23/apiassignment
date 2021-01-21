@@ -1,5 +1,6 @@
 import { user as userModel } from '../models';
 import { hash, compare } from 'bcrypt';
+import responseResult from '../utilities/responseUtility';
 
 // Create new user functionality
 
@@ -8,21 +9,28 @@ export const signup = async (req, res) => {
     req.body.password = await hash(req.body.password, 10);
     const user = await userModel.create(req.body);
     if (user) {
-      res.json(
-        {
-          "Success": `User created successfully`,
-          "User": {
-            "id": `${user.id}`,
-            "firstName": `${user.firstName}`,
-            "lastName": `${user.lastName}`,
-            "email": `${user.email}`
-          }
-        }
+      responseResult.success(
+        "User created successfully",
+        user,
+        res,
+        200
       );
+      res.json(responseResult);
     }
-    res.json({"Error": `Sorry! the user could not be registered`});
+    responseResult.error(
+      "User could not be regisered",
+      res,
+      400
+    );
+    res.json(responseResult);
   } catch (err) {
-    res.json({"Error": "Exception occured", "Exception": `${err}`});
+    responseResult.error(
+      "Exception occured",
+      res,
+      400,
+      err
+    );
+    res.json(responseResult);
   }
 };
 
@@ -32,30 +40,37 @@ export const login = async (req, res) => {
   try {
     const user = await userModel.findOne({ where: { email: req.body.email } });
     if (user == null) {
-      res.json({"Error": `User not found`});
+      responseResult.error(
+        "Invalid credentials provided",
+        res,
+        400
+      );
+      res.json(responseResult);
     }
     if (await compare(req.body.password, user.password)) {
-      const loggedUser = {
-        id: user.id,
-        firstName: user.firstName,
-        lastName: user.lastName,
-        email: user.email,
-      };
-      res.json(
-        {
-          "Success": `User logged in successfully`,
-           "User": {
-              "id": `${loggedUser.id}`,
-              "firstName": `${loggedUser.firstName}`,
-              "lastName": `${loggedUser.lastName}`,
-              "email": `${loggedUser.email}`
-            }
-        }
-      );
+        responseResult.success(
+          "Login successfully",
+          user,
+          res,
+          200
+        );
+      res.json(responseResult);
     }
-    res.json({"Error": `Sorry! the user could not be authenticated`});
+
+    responseResult.error(
+      "Bad request",
+      res,
+      400
+    );
+    res.json(responseResult);
 
   } catch (err) {
-    res.json({"Error": "Exception occured", "Exception": `${err}`});
+    responseResult.error(
+      "Exception occured",
+      res,
+      400,
+      err
+    );
+    res.json(responseResult);
   }
 };
