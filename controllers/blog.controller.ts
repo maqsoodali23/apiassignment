@@ -1,10 +1,21 @@
 import { blog as blogModel } from '../models';
 import responseResult from '../utilities/responseUtility';
+import { validationResult } from 'express-validator';
 
 // Create new blog functionality
 
 export const addBlog = async (req, res) => {
   try {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      responseResult.error(
+        "Data validation failed",
+        res,
+        400,
+        errors.array()
+      );
+      res.json(responseResult);
+    }
     const blog = await blogModel.create(req.body);
     if (blog) {
       responseResult.success(
@@ -34,6 +45,16 @@ export const addBlog = async (req, res) => {
 
 export const updateBlog = async (req, res) => {
   try {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      responseResult.error(
+        "Data validation failed",
+        res,
+        400,
+        errors.array()
+      );
+      res.json(responseResult);
+    }
     const blog = await blogModel.findOne({ where: { id: req.body.id } });
     if (blog == null) {
       responseResult.error(

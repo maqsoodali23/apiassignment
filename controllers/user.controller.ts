@@ -1,11 +1,22 @@
 import { user as userModel } from '../models';
 import { hash, compare } from 'bcrypt';
 import responseResult from '../utilities/responseUtility';
+import { validationResult } from 'express-validator';
 
 // Create new user functionality
 
 export const signup = async (req, res) => {
   try {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      responseResult.error(
+        "Data validation failed",
+        res,
+        400,
+        errors.array()
+      );
+      res.json(responseResult);
+    }
     req.body.password = await hash(req.body.password, 10);
     const user = await userModel.create(req.body);
     if (user) {
@@ -38,6 +49,16 @@ export const signup = async (req, res) => {
 
 export const login = async (req, res) => {
   try {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      responseResult.error(
+        "Data validation failed",
+        res,
+        400,
+        errors.array()
+      );
+      res.json(responseResult);
+    }
     const user = await userModel.findOne({ where: { email: req.body.email } });
     if (user == null) {
       responseResult.error(
@@ -58,7 +79,7 @@ export const login = async (req, res) => {
     }
 
     responseResult.error(
-      "Bad request",
+      "Invalid login credentials",
       res,
       400
     );
