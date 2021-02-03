@@ -15,7 +15,7 @@ export const signup = async (req, res) => {
         400,
         errors.array()
       );
-      res.json(responseResult);
+      return res.json(responseResult);
     }
     req.body.password = await hash(req.body.password, 10);
     const user = await userModel.create(req.body);
@@ -26,14 +26,14 @@ export const signup = async (req, res) => {
         res,
         200
       );
-      res.json(responseResult);
+      return res.json(responseResult);
     }
     responseResult.error(
       "User could not be regisered",
       res,
       400
     );
-    res.json(responseResult);
+    return res.json(responseResult);
   } catch (err) {
     responseResult.error(
       "Exception occured",
@@ -41,7 +41,7 @@ export const signup = async (req, res) => {
       400,
       err
     );
-    res.json(responseResult);
+    return res.json(responseResult);
   }
 };
 
@@ -57,7 +57,7 @@ export const login = async (req, res) => {
         400,
         errors.array()
       );
-      res.json(responseResult);
+      return res.json(responseResult);
     }
     const user = await userModel.findOne({ where: { email: req.body.email } });
     if (user == null) {
@@ -66,7 +66,7 @@ export const login = async (req, res) => {
         res,
         400
       );
-      res.json(responseResult);
+      return res.json(responseResult);
     }
     if (await compare(req.body.password, user.password)) {
         responseResult.success(
@@ -75,7 +75,7 @@ export const login = async (req, res) => {
           res,
           200
         );
-      res.json(responseResult);
+      return res.json(responseResult);
     }
 
     responseResult.error(
@@ -83,7 +83,7 @@ export const login = async (req, res) => {
       res,
       400
     );
-    res.json(responseResult);
+    return res.json(responseResult);
 
   } catch (err) {
     responseResult.error(
@@ -92,6 +92,6 @@ export const login = async (req, res) => {
       400,
       err
     );
-    res.json(responseResult);
+    return res.json(responseResult);
   }
 };
