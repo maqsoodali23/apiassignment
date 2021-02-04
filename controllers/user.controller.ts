@@ -2,6 +2,9 @@ import { user as userModel } from '../models';
 import { hash, compare } from 'bcrypt';
 import responseResult from '../utilities/responseUtility';
 import { validationResult } from 'express-validator';
+import jwt from 'jsonwebtoken';
+
+const secretKey = process.env.JWT_KEY || "randomstring";
 
 // Create new user functionality
 
@@ -69,11 +72,18 @@ export const login = async (req, res) => {
       return res.json(responseResult);
     }
     if (await compare(req.body.password, user.password)) {
+        const loggedUser = {
+          "firstName": user.firstName,
+          "lastName": user.lastName,
+          "email": user.email,
+        };
+        const token = jwt.sign(loggedUser, secretKey);
         responseResult.success(
           "Login successfully",
           user,
           res,
-          200
+          200,
+          token
         );
       return res.json(responseResult);
     }

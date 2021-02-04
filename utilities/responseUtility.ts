@@ -16,10 +16,13 @@ const errorResult: any = {
       res.status(status).json(errorResult);
     },
   
-    success: (message, response, res, status = 201) => {
+    success: (message, response, res, status = 201, token = null) => {
         successResult.error = false;
         successResult.message = message;
         successResult.data = response;
-      res.status(status).json(successResult);
+        if(token != null) {
+          successResult.token = token;
+        }
+        res.status(status).json(successResult);
     },
   };
